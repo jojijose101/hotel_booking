@@ -1,0 +1,141 @@
+{% extends "bookings/base.html" %}
+{% block title %}Book Room{% endblock %}
+
+{% block content %}
+<a class="back" href="{% url 'booking:hotel_detail' room.hotel.id %}">← Back</a>
+
+<section class="book-wrap">
+
+  <!-- LEFT: Room / Hotel Preview -->
+  <div class="card book-left">
+    <div class="img-box">
+      {% if room.image %}
+        <img src="{{ room.image.url }}" alt="{{ room.name }}">
+      {% else %}
+        <div class="img-placeholder">No Image</div>
+      {% endif %}
+    </div>
+
+    <h2 class="room-title">{{ room.hotel.name }} • {{ room.name }}</h2>
+    <p class="muted">
+      {{ room.hotel.city }}
+      {% if room.hotel.address %} • {{ room.hotel.address }}{% endif %}
+    </p>
+
+    <div class="info-row">
+      <div class="info-pill">Capacity: <b>{{ room.capacity }}</b></div>
+      <div class="info-pill">Total Rooms: <b>{{ room.total_rooms }}</b></div>
+      <div class="info-pill price-pill">₹ {{ room.price_per_night }} / night</div>
+    </div>
+
+    {% if preview_available is not None %}
+      <div class="alert alert-info" style="margin-top:12px;">
+        Availability for selected dates: <b>{{ preview_available }}</b>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- RIGHT: Booking Form -->
+  <div class="card book-right">
+    <h1 class="page-title" style="margin-top:0;">Confirm your booking</h1>
+    <p class="muted">Enter your dates and number of rooms.</p>
+
+    <!-- Top errors (optional) -->
+    {% if errors %}
+      <div class="alert alert-error">
+        <b>Please fix the errors below.</b>
+      </div>
+    {% endif %}
+
+    <form method="post" class="form" novalidate>
+      {% csrf_token %}
+
+      <div class="form-grid">
+        <!-- Check-in -->
+        <div class="form-row">
+          <label for="check_in">Check-in</label>
+          <input
+            type="date"
+            id="check_in"
+            name="check_in"
+            min="{% now 'Y-m-d' %}"
+            value="{{ values.check_in }}"
+            required
+          >
+          {% if errors.check_in %}
+            <div class="field-error">{{ errors.check_in }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Check-out -->
+        <div class="form-row">
+          <label for="check_out">Check-out</label>
+          <input
+            type="date"
+            id="check_out"
+            name="check_out"
+            value="{{ values.check_out }}"
+            required
+          >
+          {% if errors.check_out %}
+            <div class="field-error">{{ errors.check_out }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Rooms Count -->
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="rooms_count">Rooms</label>
+          <input
+            type="number"
+            id="rooms_count"
+            name="rooms_count"
+            min="1"
+            value="{{ values.rooms_count }}"
+            required
+          >
+          {% if errors.rooms_count %}
+            <div class="field-error">{{ errors.rooms_count }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary">
+        <div class="summary-row">
+          <span>Price per night</span>
+          <b>₹ <span id="pricePerNight">{{ room.price_per_night }}</span></b>
+        </div>
+
+        <div class="summary-row">
+          <span>Nights</span>
+          <b><span id="nightsCount">0</span></b>
+        </div>
+
+        <div class="summary-row">
+          <span>Rooms</span>
+          <b><span id="roomsCountPreview">{{ values.rooms_count|default:"1" }}</span></b>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #eee;margin:10px 0;">
+
+        <div class="summary-row">
+          <span>Estimated total</span>
+          <b>₹ <span id="totalPrice">0</span></b>
+        </div>
+
+        <p class="muted small" style="margin:8px 0 0;">
+          (This is an estimate. Final total is calculated by dates × rooms × price.)
+        </p>
+      </div>
+
+      <button type="submit" class="btn-primary">Confirm Booking</button>
+
+      <p class="muted small" style="margin:10px 0 0;">
+        By booking, you agree to our cancellation policy.
+      </p>
+    </form>
+  </div>
+</section>
+{% load static %}
+<script src="{% static 'bookings/js/booking.js' %}"></script>
+{% endblock %}

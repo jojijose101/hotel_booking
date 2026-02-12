@@ -1,0 +1,26 @@
+{% extends "bookings/base.html" %}
+{% block title %}Hotels{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Find Hotels</h1>
+
+<form class="searchbar" method="get">
+  <input type="text" name="q" placeholder="Search hotel name..." value="{{ q }}">
+  <input type="text" name="city" placeholder="City..." value="{{ city }}">
+  <button type="submit">Search</button>
+</form>
+
+<div class="grid">
+  {% for h in hotels %}
+  <a class="card" href="{% url 'booking:hotel_detail' h.id %}">
+    {% if h.image %}
+    <img src="{{ h.image.url }}" class="card-img" alt="{{ h.name }}">
+    {% endif %}
+    <h3>{{ h.name }}</h3>
+    <p class="muted">{{ h.city }}</p>
+  </a>
+  {% empty %}
+  <p>No hotels found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

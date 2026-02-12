@@ -1,0 +1,45 @@
+{% extends "bookings/base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <h1 class="auth-title">Create account</h1>
+    <p class="muted">Sign up to book rooms easily.</p>
+
+    <form method="post" class="auth-form" novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
+        <label>Username</label>
+        <input type="text" name="username" value="{{ values.username }}" placeholder="Choose a username">
+        {% if errors.username %}<div class="field-error">{{ errors.username }}</div>{% endif %}
+      </div>
+
+      <div class="form-row">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ values.email }}" placeholder="Enter email">
+        {% if errors.email %}<div class="field-error">{{ errors.email }}</div>{% endif %}
+      </div>
+
+      <div class="form-row">
+        <label>Password</label>
+        <input type="password" name="password1" placeholder="Create password">
+        {% if errors.password1 %}<div class="field-error">{{ errors.password1 }}</div>{% endif %}
+      </div>
+
+      <div class="form-row">
+        <label>Confirm Password</label>
+        <input type="password" name="password2" placeholder="Confirm password">
+        {% if errors.password2 %}<div class="field-error">{{ errors.password2 }}</div>{% endif %}
+      </div>
+
+      <button class="btn-primary" type="submit">Create account</button>
+
+      <p class="muted small" style="margin:12px 0 0;">
+        Already have an account? <a class="link" href="{% url 'booking:login' %}">Login</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}

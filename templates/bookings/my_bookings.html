@@ -1,0 +1,23 @@
+{% extends "bookings/base.html" %}
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">My Bookings</h1>
+
+  <div class="grid">
+    {% for b in bookings %}
+      <div class="card">
+        <h3>{{ b.room.hotel.name }} • {{ b.room.name }}</h3>
+        <p class="muted">{{ b.check_in }} → {{ b.check_out }}</p>
+        <p class="muted">Rooms: {{ b.rooms_count }}</p>
+        <p class="muted">Status: <b>{{ b.status }}</b></p>
+
+        {% if b.status == "confirmed" %}
+          <a class="btn-link" href="{% url 'booking:cancel_booking' b.id %}">Cancel</a>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>No bookings yet.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

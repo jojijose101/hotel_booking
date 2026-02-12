@@ -1,0 +1,76 @@
+{% extends "bookings/base.html" %}
+{% block title %}{{ hotel.name }}{% endblock %}
+{% load bookings_extras %}
+
+{% block content %}
+<a class="back" href="{% url 'booking:hotel_list' %}">← Back</a>
+
+<section class="hotel-head">
+  <div class="hotel-media">
+    {% if hotel.image %}
+      <img src="{{ hotel.image.url }}" alt="{{ hotel.name }}">
+    {% else %}
+      <div class="hotel-placeholder">No Image</div>
+    {% endif %}
+  </div>
+
+  <div class="hotel-info">
+    <h1 class="page-title">{{ hotel.name }}</h1>
+    <p class="muted">
+      {{ hotel.city }}{% if hotel.address %} • {{ hotel.address }}{% endif %}
+    </p>
+
+    {% if hotel.description %}
+      <p class="hotel-desc">{{ hotel.description }}</p>
+    {% endif %}
+
+    <!-- Availability card -->
+    <div class="availability-card">
+      <h3>Check availability</h3>
+
+      <form method="get" class="availability-form">
+        <input type="date" name="check_in" value="{{ check_in }}" min="{% now 'Y-m-d' %}" required>
+        <input type="date" name="check_out" value="{{ check_out }}" required>
+        <button type="submit">Check</button>
+      </form>
+
+      <p class="muted small">Select dates to see how many rooms are available.</p>
+    </div>
+  </div>
+</section>
+
+
+
+<h2 class="section-title">Rooms</h2>
+
+<div class="grid">
+  {% for r in rooms %}
+    <div class="card">
+      {% if r.image %}
+        <img src="{{ r.image.url }}" class="room-img" alt="{{ r.name }}">
+      {% endif %}
+
+      <h3>{{ r.name }}</h3>
+      <p class="muted">Capacity: {{ r.capacity }}</p>
+      <p class="price">₹ {{ r.price_per_night }} / night</p>
+
+      {% if check_in and check_out and availability %}
+        {% with avail=availability|get_item:r.id %}
+          {% if avail is not None %}
+            <p class="muted">Available: <b>{{ avail }}</b></p>
+
+            {% if avail > 0 %}
+              <a class="btn-link" href="{% url 'booking:book_room' r.id %}?check_in={{ check_in }}&check_out={{ check_out }}">Book Now</a>
+            {% else %}
+              <button class="btn-muted" disabled>Sold out</button>
+            {% endif %}
+          {% endif %}
+        {% endwith %}
+      {% else %}
+        <p class="muted">Select dates to view availability</p>
+        <button class="btn-muted" disabled>Book (select dates)</button>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

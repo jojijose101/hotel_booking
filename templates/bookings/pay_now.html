@@ -1,0 +1,48 @@
+{% extends "bookings/base.html" %}
+{% block title %}Pay Now{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="cancel-wrap">
+  <h1 class="page-title">Complete Payment</h1>
+
+  <div class="card cancel-card">
+    <p><b>{{ booking.room.hotel.name }}</b> • {{ booking.room.name }}</p>
+    <p class="muted">{{ booking.check_in }} → {{ booking.check_out }}</p>
+    <p class="muted">Rooms: {{ booking.rooms_count }}</p>
+    <p class="price">Amount: ₹ {{ booking.amount_paise|floatformat:0|add:""|slice:":-2" }}</p>
+
+    <button id="rzp-button" class="btn-primary" type="button">Pay with Razorpay</button>
+
+    <form id="rzp-form" method="POST" action="{{ callback_url }}">
+      {% csrf_token %}
+      <input type="hidden" name="razorpay_order_id" value="{{ razorpay_order_id }}">
+      <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+      <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+    </form>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const options = {
+    key: "{{ razorpay_key_id }}",
+    amount: "{{ amount }}",
+    currency: "INR",
+    name: "HotelBooking",
+    description: "Room Booking Payment",
+    order_id: "{{ razorpay_order_id }}",
+    handler: function (response) {
+      document.getElementById("razorpay_payment_id").value = response.razorpay_payment_id;
+      document.getElementById("razorpay_signature").value = response.razorpay_signature;
+      document.getElementById("rzp-form").submit();
+    }
+  };
+
+  document.getElementById("rzp-button").onclick = function(e){
+    const rzp = new Razorpay(options);
+    rzp.open();
+    e.preventDefault();
+  }
+</script>
+{% endblock %}
